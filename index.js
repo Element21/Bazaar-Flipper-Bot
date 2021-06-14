@@ -3,13 +3,15 @@ const fs = require('fs-extra')
 const ObjectsToCsv = require('objects-to-csv')
 const term = require('terminal-kit').terminal
 
-let profit
+let profit, sortedArr, items
 let outputArr = new Array();
 
 function main() {
     (async () => {
         // Move to (0, 0)
         term.moveTo(0, 0)
+        // clear array
+        outputArr = new Array()
         await axios.get('https://api.hypixel.net/skyblock/bazaar')
             .then((response) => {
                 // console.log(response.data)
@@ -26,14 +28,15 @@ function main() {
                 // Render loop (terminal-kit) + Writeout loop
                 (async () => {
                     // Sort by highest profit AND highest sell orders
-                    let sortedArr = outputArr.sort((a, b) => (a.profit < b.profit && a.sell_orders < b.sell_orders && a.buy_orders > b.buy_orders) ? 1 : -1)
+                    // let sortedArr = outputArr.sort((a, b) => (a.profit < b.profit && a.sell_orders < b.sell_orders && a.buy_orders > b.buy_orders) ? 1 : -1)\
+                    sortedArr = outputArr.sort((a, b) => (a.profit < b.profit) ? 1 : -1)
                     // Make some fancy tables to sort data
-                    let items = sortedArr.map(x => [x.name, x.sell_price, x.buy_price, x.buy_orders, x.sell_orders, x.profit])
+                    items = sortedArr.map(x => [x.name, x.sell_price, x.buy_price, x.buy_orders, x.sell_orders, x.profit])
                     items.unshift(['Item Name', 'Sell Price', 'Buy Price', 'Buy Orders', 'Sell Orders', 'Profit'])
                     term.table(items
                         , {
-                            hasBorder: true,
-                            contentHasMarkup: true,
+                            // hasBorder: true,
+                            // contentHasMarkup: true,
                             borderChars: 'lightRounded',
                             fit: true   // Activate all expand/shrink + wordWrap
                         })
