@@ -22,7 +22,6 @@ let outputArr = new Array();
                         // console.log(chalk.blueBright(`Cheapest buy price: ${response.data.products[item].sell_summary[0].pricePerUnit}`))
                         // console.log(chalk.greenBright(`Profit: ${profit}`))
                         // Put that juicy data to the array
-                        console.log(response.data.products[item].quick_status)
                         outputArr.push({ 'name': item, 'sell_price': response.data.products[item].buy_summary[0].pricePerUnit, 'buy_price': response.data.products[item].sell_summary[0].pricePerUnit, 'buy_orders': response.data.products[item].quick_status.buyOrders, 'sell_orders': response.data.products[item].quick_status.sellOrders, 'profit': profit })
                     }
                 }
@@ -30,7 +29,7 @@ let outputArr = new Array();
             // Render loop (terminal-kit) + Writeout loop
             (async () => {
                 // Sort by highest profit AND highest sell orders
-                sortedArr = outputArr.sort((a, b) => (a.profit < b.profit && a.sell_orders < b.sell_orders) ? 1 : -1)
+                sortedArr = outputArr.sort((a, b) => (a.profit < b.profit && a.sell_orders < b.sell_orders && a.buy_orders < b.buy_orders) ? 1 : -1)
                 // Make some fancy tables to sort data
                 items = sortedArr.map(x => [x.name, x.sell_price, x.buy_price, x.buy_orders, x.sell_orders, x.profit])
                 items.unshift(['Item Name', 'Sell Price', 'Buy Price', 'Buy Orders', 'Sell Orders', 'Profit'])
