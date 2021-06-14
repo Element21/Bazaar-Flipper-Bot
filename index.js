@@ -1,7 +1,8 @@
-const axios = require('axios');
-const chalk = require('chalk');
+const axios = require('axios')
+const chalk = require('chalk')
 const fs = require('fs-extra')
-const ObjectsToCsv = require('objects-to-csv');
+const ObjectsToCsv = require('objects-to-csv')
+const term = require('terminal-kit').terminal
 
 let profit
 let outputArr = new Array();
@@ -21,15 +22,29 @@ let outputArr = new Array();
                         // console.log(chalk.blueBright(`Cheapest buy price: ${response.data.products[item].sell_summary[0].pricePerUnit}`))
                         // console.log(chalk.greenBright(`Profit: ${profit}`))
                         // Put that juicy data to the array
-                        outputArr.push({ 'name': item, 'sell_price': response.data.products[item].buy_summary[0].pricePerUnit, 'buy_price': response.data.products[item].sell_summary[0].pricePerUnit, 'profit': profit })
+                        console.log(response.data.products[item].quick_status)
+                        outputArr.push({ 'name': item, 'sell_price': response.data.products[item].buy_summary[0].pricePerUnit, 'buy_price': response.data.products[item].sell_summary[0].pricePerUnit, 'buy_orders': response.data.products[item].quick_status.buyOrders, 'sell_orders': response.data.products[item].quick_status.sellOrders, 'profit': profit })
                     }
                 }
             }
-            // Sort by highest profit
+            // Render loop (terminal-kit) + Writeout loop
             (async () => {
-                const csv = new ObjectsToCsv(outputArr.sort((a, b) => (a.profit < b.profit) ? 1 : -1));
+                // Sort by highest profit AND highest sell orders
+                sortedArr = outputArr.sort((a, b) => (a.profit < b.profit && a.sell_orders < b.sell_orders) ? 1 : -1)
+                // Make some fancy tables to sort data
+                items = sortedArr.map(x => [x.name, x.sell_price, x.buy_price, x.buy_orders, x.sell_orders, x.profit])
+                items.unshift(['Item Name', 'Sell Price', 'Buy Price', 'Buy Orders', 'Sell Orders', 'Profit'])
+                term.table(items
+                    , {
+                        hasBorder: true,
+                        contentHasMarkup: true,
+                        borderChars: 'lightRounded',
+                        fit: true   // Activate all expand/shrink + wordWrap
+                    })
+                // Write data out to file as backup
+                const csv = new ObjectsToCsv(sortedArr)
                 await csv.toDisk('./stonks.csv')
-                await fs.writeFileSync('./stonks.txt', JSON.stringify(outputArr.sort((a, b) => (a.profit < b.profit) ? 1 : -1)))
+                await fs.writeFileSync('./stonks.txt', JSON.stringify(sortedArr))
             })();
         })
         .catch((err) => {
