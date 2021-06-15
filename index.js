@@ -22,7 +22,7 @@ function main() {
                             // Buy and sell arrays are switched (who thought that was a good idea)
                             sppu = response.data.products[item].buy_summary[0].pricePerUnit // Sell price per unit
                             bppu = response.data.products[item].sell_summary[0].pricePerUnit // Buy price per unit
-                            item_efficiency = response.data.products[item].sell_summary[0].pricePerUnit / profit
+                            item_efficiency = profit / response.data.products[item].sell_summary[0].pricePerUnit
                             // Put that juicy data to the array
                             outputArr.push({ 'name': item, 'sell_price': sppu, 'buy_price': bppu, 'buy_orders': response.data.products[item].quick_status.buyOrders, 'sell_orders': response.data.products[item].quick_status.sellOrders, 'profit': profit, 'item_efficiency': item_efficiency })
                         }
